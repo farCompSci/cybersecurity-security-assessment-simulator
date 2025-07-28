@@ -1,0 +1,30 @@
+[
+    {
+        "Asset_Name": "Local Server Data",
+        "Description": "Office server storing schedule, billing, information, and other sensitive data."
+    },
+    {
+        "Asset_Name": "Billing and Insurance Data",
+        "Description": "Financial and insurance data stored on the cloud; protected by a password."
+    },
+    {
+        "Asset_Name": "Scheduling Data",
+        "Description": "Appointments, client contact information, and other scheduling details stored on the website."
+    },
+    {
+        "Asset_Name": "Physical Access Controls",
+        "Description": "Physical security measures including keys, locks, visitor management, and surveillance cameras."
+    },
+    {
+        "Asset_Name": "Website and Domain Credentials",
+        "Description": "Credentials for website and domain; financial information and tax records stored in cloud and physical drawers. Company emails lack multi-factor authentication."
+    },
+    {
+        "Asset_Name": "Patient Health Information",
+        "Description": "HIPAA-regulated patient data stored in the cloud with limited access; weak password policies."
+    },
+    {
+        "Asset_Name": "Practitioner Agreements and Contracts",
+        "Description": "Legal agreements outlining responsibilities between practitioners and the clinic."
+    }
+]

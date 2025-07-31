@@ -1,6 +1,7 @@
 from pathlib import Path
 from loguru import logger
 
+
 def retrieve_input_file(filename: str = 'Business_ZenithPoint.txt'):
     script_dir = Path(__file__).parent
     input_dir = script_dir.parent / 'input_files'

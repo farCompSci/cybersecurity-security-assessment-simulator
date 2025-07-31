@@ -8,7 +8,7 @@ def fetch_model_from_ollama(model_name: str = "gemma3:1b", temperature:float= 0.
         :return: ChatOllama instance if model is found, else returns None"""
     try:
         model = ChatOllama(model=f"{model_name}",temperature=temperature)
-        logger.info(f"{model_name} model fetched from ollama" if model_name != "llama3.2" else "llama3.2 fetched")
+        # logger.info(f"{model_name} model fetched from ollama" if model_name != "llama3.2" else "llama3.2 fetched")
         return model
     except Exception as e:
         logger.error('Failed to fetch model from Ollama. Details below:\n', e)

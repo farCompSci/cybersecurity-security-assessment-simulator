@@ -17,7 +17,7 @@ class ThreatItem(BaseModel):
     description: str
 
 
-class ThreatItemsCollection(BaseModel):
+class ThreatItemCollection(BaseModel):
     threats: List[ThreatItem]
 
 
@@ -42,7 +42,7 @@ class BusinessState(TypedDict):
     business_description: str
 
     assets: AssetCollection
-    potential_threats: ThreatItemsCollection
+    potential_threats: ThreatItemCollection
 
 
 class SecurityAssessmentClass(TypedDict):
@@ -56,3 +56,7 @@ class SecurityAssessmentClass(TypedDict):
 class BusinessValidationResult(BaseModel):
     is_valid: bool = Field(description="True if the business matches the prompt")
     reason: str = Field(description="Short explanation for the decision")
+
+
+class AssetValidationResult(BusinessValidationResult):
+    is_valid: bool = Field(description="True if the assets match the business")

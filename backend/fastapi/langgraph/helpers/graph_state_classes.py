@@ -54,9 +54,5 @@ class SecurityAssessmentClass(TypedDict):
 
 
 class BusinessValidationResult(BaseModel):
-    is_valid: bool = Field(description="True if the business matches the prompt")
+    is_valid: bool = Field(description="True if the provided output from the llm matches the prompt")
     reason: str = Field(description="Short explanation for the decision")
-
-
-class AssetValidationResult(BusinessValidationResult):
-    is_valid: bool = Field(description="True if the assets match the business")

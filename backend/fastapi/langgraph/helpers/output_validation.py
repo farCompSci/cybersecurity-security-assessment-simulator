@@ -1,7 +1,6 @@
 from langchain_core.messages import HumanMessage
 from loguru import logger
-from typing import Any
-from .graph_state_classes import BusinessOnlyState, BusinessValidationResult
+from .graph_state_classes import BusinessOnlyState, BusinessValidationResult, AssetCollection, ThreatItemCollection
 from .model_config import fetch_model_from_ollama
 
 
@@ -33,7 +32,7 @@ def create_business_validation_prompt(original_prompt: str, generated_business: 
     """
 
 
-def create_assets_validation_prompt(original_prompt, generated_assets):
+def create_assets_validation_prompt(original_prompt:str, generated_assets:str) -> str:
     """
     Returns a prompt to validate whether the asset generator's output is acceptable or not.
     :param original_prompt: original prompt used to generate assets
@@ -41,7 +40,7 @@ def create_assets_validation_prompt(original_prompt, generated_assets):
     :return: a dict with details about why or why not the business is acceptable
     """
     return f"""
-    You are a business assets specialist. Decide if the following assets are appropriate for the matching business.
+    You are a business assets specialist. Decide if the following assets are appropriate for the matching business. Also ensure that the output ASSETS meets the requirements from the PROMPT below.
     
     PROMPT:
     {original_prompt}
@@ -55,6 +54,30 @@ def create_assets_validation_prompt(original_prompt, generated_assets):
           "reason": "short explanation"
     }}
     """
+
+
+def create_threats_validation_prompt(original_prompt:str , generated_threats: str) -> str:
+    """
+    Returns a prompt to validate whether the threat generator's output is acceptable or not.
+    :param original_prompt: original prompt used to generate assets
+    :param generated_threats: list of returned assets (formatted for llm to understand)
+    """
+    return f"""
+    You are a business security analyst. Decide if the following potential threats generated are appropriate for the matching business. Also ensure that the output THREATS meets the requirements from the PROMPT below.
+    
+    PROMPT:
+    {original_prompt}
+    
+    GENERATED THREATS:
+    {generated_threats}
+    
+    Reply in this JSON format:
+    {{
+          "is_valid": true or false,
+          "reason": "short explanation"
+    }}
+    """
+
 
 def validate_generated_output(
     prompt: str,
@@ -77,10 +100,22 @@ def validate_generated_output(
         return BusinessValidationResult(is_valid=False, reason="Validation error")
 
 
-def format_assets_for_llm(assets):
-    assets_formatted = ""
+def format_items_for_llm(items: AssetCollection | ThreatItemCollection) -> str | None:
+    try:
+        items_formatted = ""
 
-    for asset in assets.assets:
-        assets_formatted += f"\n- {asset.category}: {asset.description}"
+        # Handle both AssetCollection and ThreatItemsCollection
+        items_list = getattr(items, 'assets', None) or getattr(items, 'threats', None)
 
-    return assets_formatted
+        if items_list is None:
+            logger.warning("No items found in collection")
+            return None
+
+        for item in items_list:
+            items_formatted += f"\n- {item.category}: {item.description}"
+
+        return items_formatted
+    except Exception as e:
+        logger.error(f"Failed to format items for llm prompts. More details below:\n{e}")
+        return
+

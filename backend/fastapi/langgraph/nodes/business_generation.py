@@ -10,7 +10,7 @@ from ..helpers.output_validation import validate_generated_output, create_busine
 
 def generate_business(business_generation_prompt: str = business_generation_prompt_message,
                       business_example_filename: str = 'Business_ZenithPoint.txt',
-                      llm_model_name: str = "llama3.2") -> BusinessState | None:
+                      llm_model_name: str = "llama3.2") -> BusinessOnlyState | None:
     """
     Generates a business idea, using a prompt template, and an example
     :param business_generation_prompt:
@@ -92,4 +92,5 @@ def get_validated_business(max_retries: int = 3) -> BusinessState | None:
 
 
 if __name__ == "__main__":
+    # Testing Business Generation
     final_business = get_validated_business(max_retries=3)

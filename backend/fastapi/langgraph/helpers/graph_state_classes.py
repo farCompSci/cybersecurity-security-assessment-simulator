@@ -51,3 +51,8 @@ class SecurityAssessmentClass(TypedDict):
     sec_assessment_conversation_history: List
     current_section: str
     available_sections: List[str]
+
+
+class BusinessValidationResult(BaseModel):
+    is_valid: bool = Field(description="True if the business matches the prompt")
+    reason: str = Field(description="Short explanation for the decision")

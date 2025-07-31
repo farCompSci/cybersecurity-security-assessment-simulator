@@ -5,7 +5,7 @@ from ..prompts.business_generator_prompt import business_generation_prompt_messa
 from ..helpers.file_operations import retrieve_input_file
 from ..helpers.model_config import fetch_model_from_ollama
 from ..helpers.graph_state_classes import BusinessState, BusinessOnlyState, AssetCollection, ThreatItemsCollection
-from ..helpers.validation import validate_business_output
+from ..helpers.output_validation import validate_business_output
 
 
 def generate_business(business_generation_prompt: str = business_generation_prompt_message,

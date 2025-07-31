@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage
 from loguru import logger
 
-from ..prompts.business_generator_prompt import business_generation_prompt_message
+from ..prompts.business_generation_prompt import business_generation_prompt_message
 from ..helpers.file_operations import retrieve_input_file
 from ..helpers.model_config import fetch_model_from_ollama
 from ..helpers.graph_state_classes import BusinessState, BusinessOnlyState, AssetCollection, ThreatItemsCollection

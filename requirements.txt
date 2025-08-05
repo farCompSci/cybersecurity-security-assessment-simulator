@@ -1,5 +1,7 @@
-langgraph
+langgraph~=0.6.0
 requests
 python-dotenv
-loguru
+loguru~=0.7.3
 langchain
+pydantic~=2.11.7
+typing_extensions~=4.14.1

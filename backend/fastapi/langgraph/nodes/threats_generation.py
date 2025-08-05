@@ -1,7 +1,7 @@
 from loguru import logger
 from ..helpers.graph_state_classes import BusinessState, ThreatItemCollection
 from ..helpers.model_config import fetch_model_from_ollama
-from ..helpers.output_validation import validate_generated_output, create_threats_validation_prompt
+from ..helpers.output_validation import validate_generated_output, create_threats_validation_prompt, format_items_for_llm
 from ..prompts.threats_generation_prompt import threat_generator_prompt_message
 
 

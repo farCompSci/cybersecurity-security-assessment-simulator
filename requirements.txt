@@ -8,3 +8,4 @@ typing_extensions~=4.14.1
 fastapi
 fastapi[standard]
 streamlit
+uuid

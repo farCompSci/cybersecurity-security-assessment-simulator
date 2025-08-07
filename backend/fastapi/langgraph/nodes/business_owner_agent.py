@@ -43,7 +43,7 @@ def business_owner_node(state: MessagesState, business: BusinessState, llm:ChatO
     try:
         logger.debug(f"Invoking LLM with {len(messages_for_llm)} messages...")
         response = llm.invoke(messages_for_llm)
-        logger.debug(f"LLM raw response: {response}")
+        # logger.debug(f"LLM raw response: {response}")
 
         if isinstance(response, str):
             response = AIMessage(content=response)

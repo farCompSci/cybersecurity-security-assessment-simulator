@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
 import uuid
@@ -22,21 +22,14 @@ class ChatResponse(BaseModel):
     conversation: List[ChatMessage]
 
 
-app = FastAPI(
-    title="Business Owner Chatbot API",
-    description="Chat with a simulated business owner persona.",
-    version="1.0.0"
-)
+router = APIRouter()
 
-@app.get('/')
-def get_something():
-    return {"message": "Hello, nothing to see here"}
 
-@app.post("/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse)
 def chat_with_business_owner(request: ChatRequest = Body(...)):
     try:
         thread_id = request.thread_id or str(uuid.uuid4())
-        # Convert ChatMessage objects to dicts
+
         messages_as_dicts = [msg.dict() for msg in request.messages]
         business_dict = request.business.dict() if hasattr(request.business, "dict") else request.business
         full_conversation_dicts = invoke_business_owner_chat(

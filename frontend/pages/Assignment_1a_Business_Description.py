@@ -7,14 +7,21 @@ def assignment_page():
 
     st.title('Assignment 1.')
 
-    business_state = st.session_state.get("graph_state", {})
+    # Initialize session state keys if not set
+    if "graph_state" not in st.session_state:
+        st.session_state.graph_state = {}
+
+    if "assetsGeneratedState" not in st.session_state:
+        st.session_state.assetsGeneratedState = False
+
+    business_state = st.session_state.graph_state
 
     business_name = business_state.get('business_name', 'Unknown Business')
     business_description = business_state.get('business_description', 'No description available.')
     business_location = business_state.get('business_location', 'No location provided.')
     business_activity = business_state.get('business_activity', 'No activity provided.')
 
-    st.markdown(f'#### The business that was assigned to you is called:\n### "{business_name}".')
+    st.markdown(f'#### The business that was assigned to you is called:\n### "{business_name}"')
 
     with st.expander("Assignment Details and Instructions Below", expanded=True):
         st.markdown("""
@@ -27,45 +34,43 @@ def assignment_page():
         """)
 
     with st.expander('Expand to see the business details:', icon="➕", expanded=False):
-        st.markdown(f"**Business Description**:<br/>"
+        st.markdown(f"*Details below for*: ***{business_name}***<br/>"
+                    f"**Business Description**:<br/>"
                     f"{business_description}<br/><br/>"
-
                     f"**Business Activity**:<br/>"
                     f"{business_activity}<br/><br/>"
-
                     f"**Business Location**:<br/>"
-                    f"{business_location}<br/><br/>"
-                    , unsafe_allow_html=True)
+                    f"{business_location}<br/><br/>",
+                    unsafe_allow_html=True)
 
-    # Assets section: generate assets if not already present
     with st.expander('Expand to see the business assets:', icon="💾", expanded=False):
         assets_obj = business_state.get('assets')
 
-        if not assets_obj or not getattr(assets_obj, 'assets', None):
-            with st.spinner("Fetching assets..."):
-                updated_state = requests.post(f"{url}/api/assets/generate-assets", json=business_state)
-                if updated_state.status_code == 200:
-                    updated_state_json = updated_state.json()
-                    st.session_state.graph_state = updated_state_json
-                    business_state = updated_state_json
-                    assets_obj = business_state.get('assets')
-                else:
-                    st.error(f"Failed to fetch assets: {updated_state.status_code} - {updated_state.text}")
-                    assets_obj = None
+        # Fetch assets only if not already fetched
+        if not st.session_state.assetsGeneratedState:
+            if not assets_obj or not isinstance(assets_obj, dict) or not assets_obj.get("assets"):
+                with st.spinner("Fetching assets..."):
+                    updated_state = requests.post(f"{url}/api/assets/generate-assets", json=business_state)
+                    if updated_state.status_code == 200:
+                        updated_state_json = updated_state.json()
+                        st.session_state.graph_state = updated_state_json
+                        st.session_state.assetsGeneratedState = True
+                        business_state = updated_state_json
+                        assets_obj = business_state.get('assets')
+                    else:
+                        st.error(f"Failed to fetch assets: {updated_state.status_code} - {updated_state.text}")
+                        assets_obj = None
 
-        # Extract the assets list from the Pydantic object
+        # Show assets
         if assets_obj is not None:
             for idx, asset in enumerate(assets_obj['assets']):
                 st.markdown(f"""
-                **Asset ({idx + 1})**: <br/>
+                *Asset {idx + 1}:* <br/>
                 **Category**: <br/>
                 {asset["category"]} <br/>
                 **Description**: <br/>
                 {asset["description"]}<br/><br/>
-                """,
-                            unsafe_allow_html=True
-                            )
-
+                """, unsafe_allow_html=True)
         else:
             st.info("No assets found.")
 

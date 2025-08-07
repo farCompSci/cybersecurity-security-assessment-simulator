@@ -11,7 +11,7 @@ from langchain_chroma import Chroma
 from langchain.embeddings.base import Embeddings
 from langchain_ollama import OllamaEmbeddings
 from langchain.schema import Document
-from ..graph_state_classes import BusinessState
+from backend.fastapi.langgraph.helpers.graph_state_classes import BusinessState
 
 
 def sanitize_chroma_collection_name(name: str) -> str:

@@ -1,15 +1,12 @@
-from pathlib import Path
-from loguru import logger
+import os
 
 
-def retrieve_input_file(filename: str = 'Business_ZenithPoint.txt'):
-    script_dir = Path(__file__).parent
-    input_dir = script_dir.parent / 'input_files'
-    file_path = input_dir / filename
-    try:
-        with open(file_path, 'r') as file:
-            logger.info(f"Business example retrieved from {file_path}")
-            return file.read()
-    except FileNotFoundError:
-        logger.error(f'ERROR! File not found: {file_path}')
+def retrieve_input_file(filename: str) -> str | None:
+    base_path = os.path.dirname(__file__)
+    input_file_path = os.path.join(base_path, '..', 'input_files', filename)
+    input_file_path = os.path.abspath(input_file_path)
+    if not os.path.isfile(input_file_path):
         return None
+
+    with open(input_file_path, 'r', encoding='utf-8') as f:
+        return f.read()

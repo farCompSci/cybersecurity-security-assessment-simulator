@@ -47,19 +47,18 @@ def assignment_page():
         assets_obj = business_state.get('assets')
 
         # Fetch assets only if not already fetched
-        if not st.session_state.assetsGeneratedState:
-            if not assets_obj or not isinstance(assets_obj, dict) or not assets_obj.get("assets"):
-                with st.spinner("Fetching assets..."):
-                    updated_state = requests.post(f"{url}/api/assets/generate-assets", json=business_state)
-                    if updated_state.status_code == 200:
-                        updated_state_json = updated_state.json()
-                        st.session_state.graph_state = updated_state_json
-                        st.session_state.assetsGeneratedState = True
-                        business_state = updated_state_json
-                        assets_obj = business_state.get('assets')
-                    else:
-                        st.error(f"Failed to fetch assets: {updated_state.status_code} - {updated_state.text}")
-                        assets_obj = None
+        if not assets_obj or not isinstance(assets_obj, dict) or not assets_obj.get("assets") and not st.session_state.assetsGeneratedState:
+            with st.spinner("Fetching assets..."):
+                updated_state = requests.post(f"{url}/api/assets/generate-assets", json=business_state)
+                if updated_state.status_code == 200:
+                    updated_state_json = updated_state.json()
+                    st.session_state.graph_state = updated_state_json
+                    st.session_state.assetsGeneratedState = True
+                    business_state = updated_state_json
+                    assets_obj = business_state.get('assets')
+                else:
+                    st.error(f"Failed to fetch assets: {updated_state.status_code} - {updated_state.text}")
+                    assets_obj = None
 
         # Show assets
         if assets_obj is not None:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from ..langgraph.nodes.assets_generation import get_validated_assets
+from ..langgraph.ai_agents.assets_generation import get_validated_assets
 from ..langgraph.helpers.graph_state_classes import BusinessState
 
 router = APIRouter()

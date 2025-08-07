@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from ..langgraph.nodes.threats_generation import get_validated_threats
+from ..langgraph.ai_agents.threats_generation import get_validated_threats
 from ..langgraph.helpers.graph_state_classes import BusinessState
 
 router = APIRouter()

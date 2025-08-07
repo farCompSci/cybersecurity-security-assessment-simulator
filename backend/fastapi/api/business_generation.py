@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from ..langgraph.nodes.business_generation import get_validated_business
+from ..langgraph.ai_agents.business_generation import get_validated_business
 from ..langgraph.helpers.graph_state_classes import BusinessState
 
 

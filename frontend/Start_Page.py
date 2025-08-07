@@ -25,6 +25,16 @@ def main_page():
 
 
 if __name__ == "__main__":
+    st.markdown(
+        r"""
+        <style>
+        .stDeployButton {
+                visibility: hidden;
+            }
+        </style>
+        """, unsafe_allow_html=True
+    )
+
     url = "http://localhost:8000"
     st.set_page_config(
         page_title="Cyber Assessment Simulation",

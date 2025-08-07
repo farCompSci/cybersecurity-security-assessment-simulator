@@ -42,7 +42,7 @@ def assignment_page():
         )
 
     if st.button("⛑️ If you're stuck, ask the TA for Help"):
-        st.switch_page("pages/Assignment_2_Teaching_Assistant.py")
+        st.switch_page("pages/Assignment_2b_Teaching_Assistant.py")
 
 
 if __name__ == '__main__':

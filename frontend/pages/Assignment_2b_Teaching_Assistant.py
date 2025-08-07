@@ -125,7 +125,7 @@ def handle_chat_input():
 def render_chat_controls():
     """Display restart or navigation options if chat is ended"""
     if st.session_state[ENDED_KEY]:
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
         with col1:
             if st.button("🔄 Start New Chat"):
@@ -136,7 +136,11 @@ def render_chat_controls():
 
         with col2:
             if st.button("📋 Back to Assessment"):
-                st.switch_page("pages/Security_Assessment.py")
+                st.switch_page("pages/Assignment_2.py")
+
+        with col3:
+            if st.button("🤝 Go to Submission Page"):
+                st.switch_page("pages/Assignment_2.py")
 
 def main():
     init_assessment_session_state()

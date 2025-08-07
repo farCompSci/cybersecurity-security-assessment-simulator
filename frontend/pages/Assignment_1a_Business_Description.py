@@ -28,13 +28,13 @@ def assignment_page():
             ***Here is a breakdown of what you are expected to do for this assignment:***
             1. Take a look at the **business description, location, activities, and assets**. 
             2. Once you have a good idea of what the business does and what assets they have, **prepare a list of questions you have regarding their security practices**.
-            3. When your list is ready, **go to the business owner and start the chat.** (*Note: They can only meet you a few times! Being a founder is difficult!*)
+            3. When your list is ready, **go to the business owner and start the chat.** 
             4. **Ask the business owner the questions you prepared** for them, and *take notes* of their answers. (*Note: They are non-technical, so you will need to do some interpretation!*)
             5. Once you have the answers to your questions, you are ready to move to the next stage of this project!
         """)
 
     with st.expander('Expand to see the business details:', icon="➕", expanded=False):
-        st.markdown(f"*Details below for*: ***{business_name}***<br/>"
+        st.markdown(f"*Details below for* ***{business_name}***<br/>"
                     f"**Business Description**:<br/>"
                     f"{business_description}<br/><br/>"
                     f"**Business Activity**:<br/>"

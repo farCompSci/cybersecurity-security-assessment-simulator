@@ -1,29 +1,53 @@
 import streamlit as st
 import requests
 import uuid
-import json
 
-# FastAPI endpoint configuration
-FASTAPI_URL = "http://localhost:8000/api/chat/owner/chat"
-
-business_state = st.session_state.get("graph_state", {})
-st.session_state.thread = uuid.uuid4()
+# FastAPI endpoint
+FASTAPI_CHAT_URL = "http://localhost:8000/api/chat/owner/chat"
+FASTAPI_STATUS_URL = "http://localhost:8000/docs"
 
 
-def call_fastapi_chat(messages, thread_id=st.session_state.get("thread", uuid.uuid4())):
+def init_session_state():
+    """Initialize all required session state variables"""
+    if "graph_state" not in st.session_state:
+        st.session_state.graph_state = {}
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    if "chat_ended" not in st.session_state:
+        st.session_state.chat_ended = False
+
+    if "thread_id" not in st.session_state:
+        st.session_state.thread_id = str(uuid.uuid4())
+
+    if "api_status" not in st.session_state:
+        st.session_state.api_status = "unknown"
+
+
+def check_api_status() -> str:
+    """Ping the FastAPI server and return online/offline"""
+    try:
+        response = requests.get(FASTAPI_STATUS_URL, timeout=5)
+        return "online" if response.status_code == 200 else "offline"
+    except requests.RequestException:
+        return "offline"
+
+
+def call_fastapi_chat(messages, thread_id):
     """Call the FastAPI chat endpoint"""
     try:
         payload = {
-            "business": business_state,
+            "business": st.session_state.graph_state,
             "messages": messages,
             "thread_id": thread_id
         }
 
         response = requests.post(
-            FASTAPI_URL,
+            FASTAPI_CHAT_URL,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=30  # 30 second timeout
+            timeout=30
         )
 
         if response.status_code == 200:
@@ -32,7 +56,7 @@ def call_fastapi_chat(messages, thread_id=st.session_state.get("thread", uuid.uu
             st.error(f"API Error {response.status_code}: {response.text}")
             return None
 
-    except requests.exceptions.RequestException as e:
+    except requests.RequestException as e:
         st.error(f"Connection error: {str(e)}")
         return None
     except Exception as e:
@@ -40,108 +64,92 @@ def call_fastapi_chat(messages, thread_id=st.session_state.get("thread", uuid.uu
         return None
 
 
-# Initialize session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.chat_ended = False
-    st.session_state.thread_id = None
+def render_header():
+    """Show header and API status"""
+    st.title("🏠 Business Owner Chatbot")
 
-if "api_status" not in st.session_state:
-    st.session_state.api_status = "unknown"
+    if st.session_state.api_status == "unknown":
+        st.session_state.api_status = check_api_status()
 
-st.title("🏠 Business Owner Chatbot")
+    if st.session_state.api_status == "online":
+        st.success("✅ Connection Established")
+    else:
+        st.error("❌ FastAPI server is offline. Please start your FastAPI server.")
+        st.stop()
 
-# API Status indicator
-def check_api_status():
-    try:
-        response = requests.get("http://localhost:8000/docs", timeout=5)
-        return "online" if response.status_code == 200 else "offline"
-    except:
-        return "offline"
+    if not st.session_state.chat_ended:
+        business_name = st.session_state.graph_state.get("business_name", "Unknown Business")
+        st.markdown(f"💬 *You are currently conversing with the Business Owner of **{business_name}***")
+        st.markdown("---")
+    else:
+        st.markdown("### 🔒 Chat session has ended.")
 
-# Check API status on first load
-if st.session_state.api_status == "unknown":
-    st.session_state.api_status = check_api_status()
 
-# Show API status
-if st.session_state.api_status == "online":
-    st.success("✅ Connection Established")
-else:
-    st.error("❌ FastAPI server is offline. Please start your FastAPI server.")
-    st.stop()
+def render_chat_history():
+    """Display previous messages from chat"""
+    for message in st.session_state.messages:
+        if message["role"] == "system":
+            continue
+        role_display = "user" if message["role"] == "human" else message["role"]
+        with st.chat_message(role_display):
+            st.markdown(message["content"])
 
-# Show header
-if not st.session_state.chat_ended:
-    st.markdown(f"💬 *You are currently conversing with the Business Owner of **{business_state['business_name']}***")
-    st.markdown("---")
-else:
-    st.markdown("### 🔒 Chat session has ended.")
 
-# Display chat history (skip system messages for display)
-for message in st.session_state.messages:
-    if message['role'] == 'system':
-        continue
+def handle_chat_input():
+    """Handle new user input"""
+    prompt = st.chat_input("Ask a question about the business's security practices. Type 'exit' to end conversation.")
+    if not prompt:
+        return
 
-    role_display = "user" if message['role'] == 'human' else message['role']
-    with st.chat_message(role_display):
-        st.markdown(message["content"])
-
-# Restart button if chat ended
-if st.session_state.chat_ended:
-    if st.button("🔄 Start New Chat"):
-        st.session_state.chat_ended = False
-        st.session_state.messages = []
-        st.session_state.thread_id = None
+    if prompt.strip().lower() == "exit":
+        with st.chat_message("assistant"):
+            st.markdown("✅ Chat ended. Thank you for your questions!")
+        st.session_state.chat_ended = True
         st.rerun()
+        return
 
-    # Option to move to next assignment if chat has ended
-    if st.button("🤝 Move to next assignment"):
-        st.switch_page("pages/Assignment_2.py")
+    st.session_state.messages.append({"role": "human", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-# Chat input
-if not st.session_state.chat_ended:
-    if prompt := st.chat_input("Ask a question about the business's security practices. Type 'exit' to end conversation."):
-        if prompt.strip().lower() == "exit":
-            with st.chat_message("assistant"):
-                st.markdown("✅ Chat ended. Thank you for your questions!")
-            st.session_state.chat_ended = True
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            result = call_fastapi_chat(st.session_state.messages, st.session_state.thread_id)
+            if result and "conversation" in result:
+                conversation = result["conversation"]
+                ai_response = next((msg["content"] for msg in reversed(conversation) if msg["role"] == "ai"), None)
+                if ai_response:
+                    st.markdown(ai_response)
+                    st.session_state.messages.append({"role": "ai", "content": ai_response})
+                else:
+                    st.error("No AI response found.")
+            else:
+                st.error("Failed to get response from the chatbot.")
+
+
+def render_chat_controls():
+    """Display restart or next-assignment options if chat is ended"""
+    if st.session_state.chat_ended:
+        if st.button("🔄 Start New Chat"):
+            st.session_state.chat_ended = False
+            st.session_state.messages = []
+            st.session_state.thread_id = str(uuid.uuid4())
             st.rerun()
-        else:
-            # Add user message to session state
-            st.session_state.messages.append({"role": "human", "content": prompt})
 
-            # Display user message
-            with st.chat_message("user"):
-                st.markdown(prompt)
+        if st.button("🤝 Move to next assignment"):
+            st.switch_page("pages/Assignment_2.py")
 
-            # Call FastAPI endpoint
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    # Prepare messages for API call
-                    api_messages = [msg for msg in st.session_state.messages]
 
-                    # Call the API
-                    result = call_fastapi_chat(
-                        messages=api_messages,
-                        thread_id=st.session_state.thread_id
-                    )
+def main():
+    init_session_state()
+    render_header()
+    render_chat_history()
 
-                    if result and "conversation" in result:
-                        # Extract the latest AI response
-                        conversation = result["conversation"]
+    if st.session_state.chat_ended:
+        render_chat_controls()
+    else:
+        handle_chat_input()
 
-                        # Find the last AI message
-                        ai_response = None
-                        for msg in reversed(conversation):
-                            if msg["role"] == "ai":
-                                ai_response = msg["content"]
-                                break
 
-                        if ai_response:
-                            st.markdown(ai_response)
-                            # Add AI response to session state
-                            st.session_state.messages.append({"role": "ai", "content": ai_response})
-                        else:
-                            st.error("No AI response found in the conversation.")
-                    else:
-                        st.error("Failed to get response from the chatbot. Please try again.")
+if __name__ == "__main__":
+    main()

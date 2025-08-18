@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import uuid
+from loguru import logger
 
 # FastAPI endpoint
 FASTAPI_CHAT_URL = "http://localhost:8000/api/chat/owner/chat"
@@ -72,9 +73,10 @@ def render_header():
         st.session_state.api_status = check_api_status()
 
     if st.session_state.api_status == "online":
-        st.success("✅ Connection Established")
+        logger.success(f"Backend Business Owner Reached")
     else:
-        st.error("❌ FastAPI server is offline. Please start your FastAPI server.")
+        st.error("❌ Business Owner Had a Family Emergency to attend to. Please come back later")
+        logger.error("❌ FastAPI server is offline. Please start your FastAPI server.")
         st.stop()
 
     if not st.session_state.chat_ended:

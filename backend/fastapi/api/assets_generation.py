@@ -4,6 +4,7 @@ from ..langgraph.helpers.graph_state_classes import BusinessState
 
 router = APIRouter()
 
+
 @router.post("/generate-assets", response_model=BusinessState)
 def generate_assets(business: BusinessState):
     try:

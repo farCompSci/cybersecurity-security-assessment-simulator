@@ -12,5 +12,11 @@ app.include_router(business_router, prefix="/api/business", tags=["Business"])
 app.include_router(assets_router, prefix="/api/assets", tags=["Assets"])
 app.include_router(threats_router, prefix="/api/threats", tags=["Threats"])
 app.include_router(business_owner, prefix="/api/chat/owner", tags=["Owner"])
-app.include_router(security_template, prefix="/api/retrieve-file", tags=["Security Template"])
-app.include_router(security_assessment_assistant, prefix="/api/chat", tags=["Security Assessment Assistant"])
+app.include_router(
+    security_template, prefix="/api/retrieve-file", tags=["Security Template"]
+)
+app.include_router(
+    security_assessment_assistant,
+    prefix="/api/chat",
+    tags=["Security Assessment Assistant"],
+)

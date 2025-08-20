@@ -2,9 +2,10 @@ import streamlit as st
 
 st.title("Assignment Final Submission")
 st.markdown(
-"""
+    """
 Welcome to the final part of the assessment! Once you are happy with your results, you can submit them here.
-""")
+"""
+)
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 

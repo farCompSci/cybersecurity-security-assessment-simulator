@@ -1,10 +1,17 @@
 from langchain_core.messages import HumanMessage
 from loguru import logger
-from .graph_state_classes import BusinessOnlyState, BusinessValidationResult, AssetCollection, ThreatItemCollection
+from .graph_state_classes import (
+    BusinessOnlyState,
+    BusinessValidationResult,
+    AssetCollection,
+    ThreatItemCollection,
+)
 from .model_config import fetch_model_from_ollama
 
 
-def create_business_validation_prompt(original_prompt: str, generated_business: BusinessOnlyState) -> str:
+def create_business_validation_prompt(
+    original_prompt: str, generated_business: BusinessOnlyState
+) -> str:
     """
     Returns a prompt to validate whether the business generator's output is acceptable or not.
     :param original_prompt: the prompt that was passed to the business generator
@@ -32,7 +39,7 @@ def create_business_validation_prompt(original_prompt: str, generated_business: 
     """
 
 
-def create_assets_validation_prompt(original_prompt:str, generated_assets:str) -> str:
+def create_assets_validation_prompt(original_prompt: str, generated_assets: str) -> str:
     """
     Returns a prompt to validate whether the asset generator's output is acceptable or not.
     :param original_prompt: original prompt used to generate assets
@@ -56,7 +63,9 @@ def create_assets_validation_prompt(original_prompt:str, generated_assets:str) -
     """
 
 
-def create_threats_validation_prompt(original_prompt:str , generated_threats: str) -> str:
+def create_threats_validation_prompt(
+    original_prompt: str, generated_threats: str
+) -> str:
     """
     Returns a prompt to validate whether the threat generator's output is acceptable or not.
     :param original_prompt: original prompt used to generate assets
@@ -80,8 +89,7 @@ def create_threats_validation_prompt(original_prompt:str , generated_threats: st
 
 
 def validate_generated_output(
-    prompt: str,
-    llm_model_name: str = "llama3.2"
+    prompt: str, llm_model_name: str = "llama3.2"
 ) -> BusinessValidationResult:
     """
     Validates whether the business generated is acceptable or not.
@@ -91,7 +99,9 @@ def validate_generated_output(
     """
 
     ollama_llm = fetch_model_from_ollama(llm_model_name)
-    ollama_llm_with_structured_output = ollama_llm.with_structured_output(BusinessValidationResult)
+    ollama_llm_with_structured_output = ollama_llm.with_structured_output(
+        BusinessValidationResult
+    )
 
     try:
         return ollama_llm_with_structured_output.invoke([HumanMessage(content=prompt)])
@@ -105,7 +115,7 @@ def format_items_for_llm(items: AssetCollection | ThreatItemCollection) -> str |
         items_formatted = ""
 
         # Handle both AssetCollection and ThreatItemsCollection
-        items_list = getattr(items, 'assets', None) or getattr(items, 'threats', None)
+        items_list = getattr(items, "assets", None) or getattr(items, "threats", None)
 
         if items_list is None:
             logger.warning("No items found in collection")
@@ -116,6 +126,7 @@ def format_items_for_llm(items: AssetCollection | ThreatItemCollection) -> str |
 
         return items_formatted
     except Exception as e:
-        logger.error(f"Failed to format items for llm prompts. More details below:\n{e}")
+        logger.error(
+            f"Failed to format items for llm prompts. More details below:\n{e}"
+        )
         return
-

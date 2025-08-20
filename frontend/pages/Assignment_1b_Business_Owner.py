@@ -43,14 +43,14 @@ def call_fastapi_chat(messages, thread_id):
         payload = {
             "business": st.session_state.graph_state,
             "messages": messages,
-            "thread_id": thread_id
+            "thread_id": thread_id,
         }
 
         response = requests.post(
             FASTAPI_CHAT_URL,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=60
+            timeout=60,
         )
 
         if response.status_code == 200:
@@ -77,13 +77,19 @@ def render_header():
     if st.session_state.api_status == "online":
         logger.success(f"Backend Business Owner Reached")
     else:
-        st.error("❌ Business Owner Had a Family Emergency to attend to. Please come back later")
+        st.error(
+            "❌ Business Owner Had a Family Emergency to attend to. Please come back later"
+        )
         logger.error("❌ FastAPI server is offline. Please start your FastAPI server.")
         st.stop()
 
     if not st.session_state.chat_ended:
-        business_name = st.session_state.graph_state.get("business_name", "Unknown Business")
-        st.markdown(f"💬 *You are currently conversing with the Business Owner of **{business_name}***")
+        business_name = st.session_state.graph_state.get(
+            "business_name", "Unknown Business"
+        )
+        st.markdown(
+            f"💬 *You are currently conversing with the Business Owner of **{business_name}***"
+        )
         st.markdown("---")
     else:
         st.markdown("### 🔒 Chat session has ended.")
@@ -101,7 +107,9 @@ def render_chat_history():
 
 def handle_chat_input():
     """Handle new user input"""
-    prompt = st.chat_input("Ask a question about the business's security practices. Type 'exit' to end conversation.")
+    prompt = st.chat_input(
+        "Ask a question about the business's security practices. Type 'exit' to end conversation."
+    )
     if not prompt:
         return
 
@@ -118,13 +126,24 @@ def handle_chat_input():
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            result = call_fastapi_chat(st.session_state.messages, st.session_state.thread_id)
+            result = call_fastapi_chat(
+                st.session_state.messages, st.session_state.thread_id
+            )
             if result and "conversation" in result:
                 conversation = result["conversation"]
-                ai_response = next((msg["content"] for msg in reversed(conversation) if msg["role"] == "ai"), None)
+                ai_response = next(
+                    (
+                        msg["content"]
+                        for msg in reversed(conversation)
+                        if msg["role"] == "ai"
+                    ),
+                    None,
+                )
                 if ai_response:
                     st.markdown(ai_response)
-                    st.session_state.messages.append({"role": "ai", "content": ai_response})
+                    st.session_state.messages.append(
+                        {"role": "ai", "content": ai_response}
+                    )
                 else:
                     st.error("No AI response found.")
             else:

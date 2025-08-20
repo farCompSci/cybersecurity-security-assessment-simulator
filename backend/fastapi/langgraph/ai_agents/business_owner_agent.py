@@ -1,7 +1,7 @@
 from loguru import logger
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langchain_ollama import ChatOllama
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage,BaseMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from typing import List, Dict
 from functools import partial
 
@@ -12,17 +12,22 @@ from ..prompts.business_owner_prompt import business_owner_prompt_message
 
 
 def create_system_prompt(business: BusinessState):
-    assets_info = format_items_for_llm(items=AssetCollection(assets=business["assets"].assets)) or "No assets available."
+    assets_info = (
+        format_items_for_llm(items=AssetCollection(assets=business["assets"].assets))
+        or "No assets available."
+    )
     prompt = business_owner_prompt_message.format(
-        business_name=business['business_name'],
-        business_description=business['business_description'],
-        assets_info=assets_info
+        business_name=business["business_name"],
+        business_description=business["business_description"],
+        assets_info=assets_info,
     )
 
     return prompt
 
 
-def business_owner_node(state: MessagesState, business: BusinessState, llm:ChatOllama) -> Dict[str, list]:
+def business_owner_node(
+    state: MessagesState, business: BusinessState, llm: ChatOllama
+) -> Dict[str, list]:
     """
     Invokes the LLM with the current state and returns the new AI message.
     """
@@ -31,9 +36,9 @@ def business_owner_node(state: MessagesState, business: BusinessState, llm:ChatO
         system_prompt = create_system_prompt(business)
     except Exception as e:
         logger.error("Could not create system prompt")
-        logger.warning(business['assets'].assets)
+        logger.warning(business["assets"].assets)
 
-    messages = state['messages']
+    messages = state["messages"]
 
     if not messages or not isinstance(messages[0], SystemMessage):
         messages_for_llm = [SystemMessage(content=system_prompt)] + messages
@@ -48,15 +53,20 @@ def business_owner_node(state: MessagesState, business: BusinessState, llm:ChatO
         if isinstance(response, str):
             response = AIMessage(content=response)
         elif not isinstance(response, BaseMessage) or not response.content:
-            logger.warning("LLM returned an empty or invalid response. Creating a fallback message.")
+            logger.warning(
+                "LLM returned an empty or invalid response. Creating a fallback message."
+            )
             response = AIMessage(
-                content="I'm sorry, I'm not sure how to respond to that. Could you ask in a different way?")
+                content="I'm sorry, I'm not sure how to respond to that. Could you ask in a different way?"
+            )
 
         return {"messages": [response]}
 
     except Exception as e:
         logger.error(f"Error in business_owner_node: {e}")
-        error_msg = AIMessage(content="I'm sorry, I'm having trouble responding right now. Please try again.")
+        error_msg = AIMessage(
+            content="I'm sorry, I'm having trouble responding right now. Please try again."
+        )
         return {"messages": [error_msg]}
 
 
@@ -74,8 +84,9 @@ def create_business_owner_graph(business: BusinessState):
     return builder.compile()
 
 
-def invoke_business_owner_chat(business: BusinessState, messages: List[Dict[str, str]] = None, thread_id=None) -> List[
-    Dict[str, str]]:
+def invoke_business_owner_chat(
+    business: BusinessState, messages: List[Dict[str, str]] = None, thread_id=None
+) -> List[Dict[str, str]]:
     """
     Main function to invoke the business owner chat graph.
     It manages the conversation state and returns the full history.
@@ -86,13 +97,13 @@ def invoke_business_owner_chat(business: BusinessState, messages: List[Dict[str,
 
         langchain_messages = []
         for msg in messages:
-            role = msg.get('role', 'human')
-            content = msg.get('content', '')
-            if role == 'system':
+            role = msg.get("role", "human")
+            content = msg.get("content", "")
+            if role == "system":
                 langchain_messages.append(SystemMessage(content=content))
-            elif role == 'human':
+            elif role == "human":
                 langchain_messages.append(HumanMessage(content=content))
-            elif role == 'ai':
+            elif role == "ai":
                 langchain_messages.append(AIMessage(content=content))
             else:
                 langchain_messages.append(HumanMessage(content=content))
@@ -104,11 +115,11 @@ def invoke_business_owner_chat(business: BusinessState, messages: List[Dict[str,
         # The result contains the final state of the graph after execution
         result = graph.invoke(
             {"messages": langchain_messages},
-            config={"configurable": {"thread_id": thread_id}}
+            config={"configurable": {"thread_id": thread_id}},
         )
 
         # The result['messages'] is the complete, updated conversation history
-        final_messages = result['messages']
+        final_messages = result["messages"]
 
         # We need to ensure the system prompt is part of the returned history for context
         if not final_messages or not isinstance(final_messages[0], SystemMessage):
@@ -118,22 +129,29 @@ def invoke_business_owner_chat(business: BusinessState, messages: List[Dict[str,
         # Convert LangChain message objects back to dictionaries for the response
         response_messages = []
         for msg in final_messages:
-            role = 'unknown'
+            role = "unknown"
             if isinstance(msg, SystemMessage):
-                role = 'system'
+                role = "system"
             elif isinstance(msg, HumanMessage):
-                role = 'human'
+                role = "human"
             elif isinstance(msg, AIMessage):
-                role = 'ai'
+                role = "ai"
 
-            response_messages.append({'role': role, 'content': msg.content})
+            response_messages.append({"role": role, "content": msg.content})
 
         return response_messages
 
     except Exception as e:
         logger.error(f"Error in invoke_business_owner_chat: {e}")
-        return [{'role': 'ai', 'content': 'I apologize, but I encountered a critical error. Please try again.'}]
+        return [
+            {
+                "role": "ai",
+                "content": "I apologize, but I encountered a critical error. Please try again.",
+            }
+        ]
 
 
-if __name__ == '__main__':
-    logger.info("Not a runnable file. To run the business owner, please use api or test files")
+if __name__ == "__main__":
+    logger.info(
+        "Not a runnable file. To run the business owner, please use api or test files"
+    )

@@ -27,15 +27,15 @@ def sanitize_chroma_collection_name(name: str) -> str:
     name = name.lower()
 
     # Replace spaces and disallowed characters with "_"
-    name = re.sub(r'[^a-zA-Z0-9._-]', '_', name)
+    name = re.sub(r"[^a-zA-Z0-9._-]", "_", name)
 
     # Remove leading/trailing non-alphanumeric characters
-    name = re.sub(r'^[^a-zA-Z0-9]+', '', name)
-    name = re.sub(r'[^a-zA-Z0-9]+$', '', name)
+    name = re.sub(r"^[^a-zA-Z0-9]+", "", name)
+    name = re.sub(r"[^a-zA-Z0-9]+$", "", name)
 
     # Ensure minimum and maximum length
     if len(name) < 3:
-        name = name.ljust(3, '_')
+        name = name.ljust(3, "_")
     elif len(name) > 512:
         name = name[:512]
 
@@ -45,7 +45,8 @@ def sanitize_chroma_collection_name(name: str) -> str:
 def flatten_business_state(state: BusinessState) -> str | None:
     """Transforms BusinessState into a string for vector storing
     :param state: BusinessState - pass in the business object
-    :returns str | None - return the string if Business State can be converted, else return none"""
+    :returns str | None - return the string if Business State can be converted, else return none
+    """
     try:
         str_state_flat_parts = [
             f"Business Name: {state['business_name']}",
@@ -53,8 +54,10 @@ def flatten_business_state(state: BusinessState) -> str | None:
             f"Activity: {state['business_activity']}",
             f"Location: {state['business_location']}",
         ]
-        for asset in state['assets']['assets']:
-            str_state_flat_parts.append(f"Asset Category: {asset['category']} - {asset['description']}")
+        for asset in state["assets"]["assets"]:
+            str_state_flat_parts.append(
+                f"Asset Category: {asset['category']} - {asset['description']}"
+            )
 
         return "\n".join(str_state_flat_parts)
 
@@ -70,7 +73,7 @@ def load_markdown(file_path: str) -> str:
             markdown_text = f.read()
             return markdown_text
     except FileNotFoundError:
-        logger.error('File not found!')
+        logger.error("File not found!")
 
 
 def custom_numbered_header_split(markdown_text: str) -> list:
@@ -93,11 +96,7 @@ def custom_numbered_header_split(markdown_text: str) -> list:
             number = match.group(1)
             level = len(match.group(2))
             title = match.group(3).strip()
-            metadata = {
-                "section_number": number,
-                "level": level,
-                "title": title
-            }
+            metadata = {"section_number": number, "level": level, "title": title}
         else:
             metadata = {}
 
@@ -106,32 +105,32 @@ def custom_numbered_header_split(markdown_text: str) -> list:
     return docs
 
 
-def embed_text(text_to_embed: str, embedding_function: str = 'mxbai-embed-large'):
+def embed_text(text_to_embed: str, embedding_function: str = "mxbai-embed-large"):
     """Takes a flat string and embeds it. This function can be used to embed user query and the business info
     :param text_to_embed:str - the flattened business state string
     :param embedding_function:str - the name of the embedding function to use from ollama
     :param reason:str - the reason for the embedding. This is more of a logging parameter, leave as is
     """
     try:
-        response = ollama.embed(model=f'{embedding_function}',
-                                input=f'{text_to_embed}')
-        return response['embeddings'][0]
+        response = ollama.embed(model=f"{embedding_function}", input=f"{text_to_embed}")
+        return response["embeddings"][0]
 
     except Exception as e:
         logger.error(e)
         return None
 
 
-def update_chroma_collection(collection: Collection, collection_name: str, documents: list, embeddings: list,
-                             ids: list):
+def update_chroma_collection(
+    collection: Collection,
+    collection_name: str,
+    documents: list,
+    embeddings: list,
+    ids: list,
+):
     """Updates the existing collection in the current Chroma database"""
     try:
-        collection.add(
-            documents=documents,
-            embeddings=embeddings,
-            ids=ids
-        )
-        logger.info(f'Updated collection: {collection_name}')
+        collection.add(documents=documents, embeddings=embeddings, ids=ids)
+        logger.info(f"Updated collection: {collection_name}")
         return None
     except Exception as e:
         logger.error(e)
@@ -139,9 +138,9 @@ def update_chroma_collection(collection: Collection, collection_name: str, docum
 
 
 def ingest_business_profile(
-        business_state: BusinessState,
-        db_path: str = "../chromadb_vectorstore",
-        embedding_model: str = "mxbai-embed-large"
+    business_state: BusinessState,
+    db_path: str = "../chromadb_vectorstore",
+    embedding_model: str = "mxbai-embed-large",
 ):
     """Brings together the helper functions to ingest the business into a vectorstore"""
     collection_name = sanitize_chroma_collection_name(business_state["business_name"])
@@ -171,14 +170,14 @@ def ingest_business_profile(
         collection_name=collection_name,
         documents=[flat_business],
         embeddings=[embedding],
-        ids=[doc_id]
+        ids=[doc_id],
     )
 
 
 def get_vectorstore(
-        collection_name: str,
-        db_path: str = "../chromadb_vectorstore",
-        embedding_model: str = "mxbai-embed-large"
+    collection_name: str,
+    db_path: str = "../chromadb_vectorstore",
+    embedding_model: str = "mxbai-embed-large",
 ):
     """
     Returns a Chroma vectorstore for the specified collection.
@@ -207,8 +206,12 @@ def get_vectorstore(
         raise
 
 
-def setup_vectorstore_saa(file_name: str, persist_dir: str = "../chromadb_vectorstore",
-                          embedding_model: str = "mxbai-embed-large", input_file_path: str = "../input_files/Security Assessment"):
+def setup_vectorstore_saa(
+    file_name: str,
+    persist_dir: str = "../chromadb_vectorstore",
+    embedding_model: str = "mxbai-embed-large",
+    input_file_path: str = "../input_files/Security Assessment",
+):
     """Initialize vector store. Load vectorstore if exists."""
 
     collection_name = sanitize_chroma_collection_name(file_name)
@@ -222,10 +225,12 @@ def setup_vectorstore_saa(file_name: str, persist_dir: str = "../chromadb_vector
         # Create new vectorstore
         vectorstore = Chroma.from_documents(
             documents=custom_numbered_header_split(load_markdown(input_file_path)),
-            embedding=OllamaEmbeddings(model=embedding_model, base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")),
+            embedding=OllamaEmbeddings(
+                model=embedding_model,
+                base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
+            ),
             persist_directory=persist_dir,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
     return vectorstore
-

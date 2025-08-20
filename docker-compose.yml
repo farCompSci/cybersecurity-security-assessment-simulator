@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: >
+      sh -c "
+        ollama serve &
+        sleep 2 &&
+        ollama pull llama3.2 &&
+        ollama pull mxbai-embed-large &&
+        tail -f /dev/null
+      "
+    healthcheck:
+          test: ["CMD-SHELL", "ollama list"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+
+  backend:
+      build:
+        context: .
+      command: fastapi dev backend/fastapi/api/main_app.py --host 0.0.0.0 --port 8000
+      ports:
+        - "8000:8000"
+      environment:
+        - OLLAMA_BASE_URL=http://ollama:11434
+      # Change depends_on to wait for the healthcheck
+      depends_on:
+        ollama:
+          condition: service_healthy
+      volumes:
+        - .:/app
+
+  frontend:
+    build:
+      context: .
+    command: streamlit run frontend/Start_Page.py
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    volumes:
+      - .:/app  # Optional: mount your code for live reload in dev
+
+volumes:
+  ollama_data:

@@ -86,13 +86,5 @@ def get_validated_assets(state: BusinessState, max_retries: int = 3) -> Business
     return None
 
 
-
 if __name__ == "__main__":
-    # Testing Business Generation -> Assets Generation
-    from .business_generation import get_validated_business
-
-    state = get_validated_business()
-    assets = get_validated_assets(state=state)
-
-    print('Initial State:\n\n',state,'\n\n')
-    print('Output from Asset Validated:\n\n', assets, '\n\n')
+    logger.info("Not a runnable file. To run the business owner, please use api or test files")

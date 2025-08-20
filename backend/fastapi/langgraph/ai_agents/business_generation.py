@@ -92,5 +92,4 @@ def get_validated_business(max_retries: int = 3) -> BusinessState | None:
 
 
 if __name__ == "__main__":
-    # Testing Business Generation
-    final_business = get_validated_business(max_retries=3)
+    logger.info("Not a runnable file. To run the business owner, please use api or test files")

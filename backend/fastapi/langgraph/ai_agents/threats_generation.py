@@ -85,12 +85,4 @@ def get_validated_threats(state: BusinessState, max_retries: int = 3) -> Busines
 
 
 if __name__ == "__main__":
-    # Testing Business Generation -> Assets Generation -> Threats Generation
-    from .business_generation import get_validated_business
-    from .assets_generation import get_validated_assets
-    from ..helpers.output_validation import format_items_for_llm
-
-    business = get_validated_business()
-    business_with_assets = get_validated_assets(business)
-    business_with_threats = get_validated_threats(business_with_assets)
-    print(business_with_threats)
+    logger.info("Not a runnable file. To run the business owner, please use api or test files")

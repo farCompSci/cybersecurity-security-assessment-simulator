@@ -43,7 +43,6 @@ def _initialize_security_assistant(
         persist_dir: str = "backend/chromadb_vectorstore"
 ):
     try:
-        # 1. Load or create vectorstore
         vectorstore = setup_vectorstore_saa(
             file_name=file_name,
             persist_dir=persist_dir,
@@ -230,40 +229,4 @@ def invoke_security_assistant_chat(messages: List[Dict[str, str]] = None, thread
 
 
 if __name__ == '__main__':
-    import uuid
-    import sys
-
-    # Configure Loguru to show debug messages for better diagnostics
-    logger.remove()
-    logger.add(sys.stderr, level="INFO")
-
-    thread_id = str(uuid.uuid4())
-    print(f"Testing with thread_id: {thread_id}")
-
-    # --- Test 1: Single message about sections ---
-    print("\n" + "=" * 50)
-    print("TEST 1: Ask about listing sections")
-    print("=" * 50)
-    test_messages_1 = [{"role": "human", "content": "Can you list all available sections?"}]
-    conversation_history = invoke_security_assistant_chat(test_messages_1, thread_id)
-    for msg in conversation_history:
-        if msg['role'] == 'system':
-            print("System: [Redacted for brevity]\n")
-        else:
-            print(f"{msg['role'].capitalize()}: {msg['content']}\n")
-
-    # --- Test 2: Ask about a specific section ---
-    print("\n" + "=" * 50)
-    print("TEST 2: Ask about section 3")
-    print("=" * 50)
-    test_messages_2 = [{"role": "human", "content": "Tell me about section 3"}]
-    conversation_history_2 = invoke_security_assistant_chat(test_messages_2, thread_id)
-    for msg in conversation_history_2:
-        if msg['role'] == 'system':
-            print("System: [Redacted for brevity]\n")
-        else:
-            print(f"{msg['role'].capitalize()}: {msg['content']}\n")
-
-    print("\n" + "=" * 50)
-    print("All tests completed!")
-    print("=" * 50)
+    logger.info("Not a runnable file. To run the business owner, please use api or test files")

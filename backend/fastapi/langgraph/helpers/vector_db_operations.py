@@ -222,7 +222,7 @@ def setup_vectorstore_saa(file_name: str, persist_dir: str = "../chromadb_vector
         # Create new vectorstore
         vectorstore = Chroma.from_documents(
             documents=custom_numbered_header_split(load_markdown(input_file_path)),
-            embedding=OllamaEmbeddings(model=embedding_model),
+            embedding=OllamaEmbeddings(model=embedding_model, base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")),
             persist_directory=persist_dir,
             collection_name=collection_name
         )

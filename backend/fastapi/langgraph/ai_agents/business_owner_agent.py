@@ -41,7 +41,7 @@ def business_owner_node(state: MessagesState, business: BusinessState, llm:ChatO
         messages_for_llm = messages
 
     try:
-        logger.debug(f"Invoking LLM with {len(messages_for_llm)} messages...")
+        # logger.debug(f"Invoking LLM with {len(messages_for_llm)} messages...")
         response = llm.invoke(messages_for_llm)
         # logger.debug(f"LLM raw response: {response}")
 
@@ -136,69 +136,4 @@ def invoke_business_owner_chat(business: BusinessState, messages: List[Dict[str,
 
 
 if __name__ == '__main__':
-    import uuid
-    import sys
-
-    # Configure Loguru to show debug messages for better diagnostics
-    logger.remove()
-    logger.add(sys.stderr, level="INFO")  # Change to "DEBUG" for more verbose output
-
-    # Sample Business Data (shortened for brevity)
-    business: BusinessState = {
-        "business_name": "Harmony Home Cleaning",
-        "business_location": "Austin, TX",
-        "business_contact_info": "info@harmonyhomecleaning.com",
-        "business_activity": "Professional cleaning services for residential and commercial clients.",
-        "business_description": "Harmony Home Cleaning is a small business that provides top-notch cleaning services...",
-        "assets": {
-            "assets": [
-                {"category": "Digital Assets", "description": "List of digital assets..."},
-                {"category": "Asset Name", "description": "Local Server Data"},
-                {"category": "Description", "description": "Office server storing schedule..."},
-            ]
-        },
-        "potential_threats": {"threats": []}
-    }
-
-    thread_id = str(uuid.uuid4())
-    print(f"Testing with thread_id: {thread_id}")
-
-    # --- Test 1: Single message conversation ---
-    print("\n" + "=" * 50)
-    print("TEST 1: Single message about MFA policies")
-    print("=" * 50)
-    test_messages_1 = [{"role": "human", "content": "Tell me about your business MFA policies if you know."}]
-    conversation_history = invoke_business_owner_chat(business, test_messages_1, thread_id)
-    for msg in conversation_history:
-        if msg['role'] == 'system':
-            print("System: [Redacted for brevity]\n")
-        else:
-            print(f"{msg['role'].capitalize()}: {msg['content']}\n")
-
-    # --- Test 2: Multi-turn conversation ---
-    print("\n" + "=" * 50)
-    print("TEST 2: Multi-turn conversation")
-    print("=" * 50)
-    # Use the full history from the previous turn for context
-    conversation_history.append({"role": "human", "content": "How do you handle customer data security?"})
-    final_conversation = invoke_business_owner_chat(business, conversation_history, thread_id)
-    for msg in final_conversation:
-        if msg['role'] == 'system':
-            print("System: [Redacted for brevity]\n")
-        else:
-            print(f"{msg['role'].capitalize()}: {msg['content']}\n")
-
-    # --- Test 3: Empty/None messages ---
-    print("\n" + "=" * 50)
-    print("TEST 3 & 4: Empty and None messages")
-    print("=" * 50)
-    result_3 = invoke_business_owner_chat(business, None, thread_id)
-    for msg in result_3:
-        if msg['role'] == 'system':
-            print("System: [Redacted for brevity]\n")
-        else:
-            print(f"{msg['role'].capitalize()}: {msg['content']}\n")
-
-    print("\n" + "=" * 50)
-    print("All tests completed!")
-    print("=" * 50)
+    logger.info("Not a runnable file. To run the business owner, please use api or test files")

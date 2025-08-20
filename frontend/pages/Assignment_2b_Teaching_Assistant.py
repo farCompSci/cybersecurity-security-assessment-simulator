@@ -1,10 +1,12 @@
 import streamlit as st
 import requests
 import uuid
+import os
 
 # FastAPI endpoint
-FASTAPI_CHAT_URL = "http://localhost:8000//api/chat/assessment-assistant"
-FASTAPI_STATUS_URL = "http://localhost:8000/docs"
+url = os.environ.get("BACKEND_URL", "http://localhost:8000")
+FASTAPI_CHAT_URL = f"{url}/api/chat/assessment-assistant"
+FASTAPI_STATUS_URL = f"{url}/docs"
 
 MSG_KEY = "assessment_messages"
 ENDED_KEY = "assessment_chat_ended"
@@ -45,7 +47,7 @@ def call_fastapi_chat(messages, thread_id):
             FASTAPI_CHAT_URL,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=30
+            timeout=180
         )
 
         if response.status_code == 200:

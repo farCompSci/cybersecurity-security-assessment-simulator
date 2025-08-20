@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-
+import os
 
 def main_page():
     st.header('Welcome to the Cyber Assessment Simulation!')
@@ -19,7 +19,7 @@ def main_page():
             </ol>
 
             <h3 style="margin-top: 0; margin-bottom: 0;">How to get started?</h3>
-            <p>Click on the button below, and it will take you to the assessment.</p>
+            <p>Click on the button below, and it will take you to the assessment. (It sometimes takes a second to appear)</p>
         </div>
         """)
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         """, unsafe_allow_html=True
     )
 
-    url = "http://localhost:8000"
+    url = os.environ.get("BACKEND_URL", "http://localhost:8000")
     st.set_page_config(
         page_title="Cyber Assessment Simulation",
         page_icon="🧢",

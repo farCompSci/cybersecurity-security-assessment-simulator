@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
-from loguru import logger
-
+import os
 
 def assignment_page():
     business_state = st.session_state.get("graph_state", {})
@@ -10,7 +9,7 @@ def assignment_page():
     business_location = business_state.get('business_location', 'No location provided.')
     business_activity = business_state.get('business_activity', 'No activity provided.')
 
-    base_url = "http://localhost:8000"
+    base_url = os.environ.get("BACKEND_URL", "http://localhost:8000")
     security_assessment_md = requests.get(f"{base_url}/api/retrieve-file/retrieve-security-template").text
 
     if "threatsGeneratedState" not in st.session_state:

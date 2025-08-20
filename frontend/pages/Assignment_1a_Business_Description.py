@@ -1,9 +1,9 @@
 import streamlit as st
 import requests
-
+import os
 
 def assignment_page():
-    url = "http://localhost:8000"
+    url = os.getenv("BACKEND_URL","http://localhost:8000")
 
     st.title('Assignment 1.')
 

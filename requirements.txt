@@ -10,3 +10,4 @@ fastapi[standard]
 streamlit
 uuid
 langchain-chroma
+langchain-ollama

@@ -16,38 +16,37 @@ services:
         tail -f /dev/null
       "
     healthcheck:
-          test: ["CMD-SHELL", "ollama list"]
-          interval: 10s
-          timeout: 5s
-          retries: 5
+      test: ["CMD-SHELL", "ollama list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-      build:
-        context: .
-      command: fastapi dev backend/fastapi/api/main_app.py --host 0.0.0.0 --port 8000
-      ports:
-        - "8000:8000"
-      environment:
-        - OLLAMA_BASE_URL=http://ollama:11434
-      # Change depends_on to wait for the healthcheck
-      depends_on:
-        ollama:
-          condition: service_healthy
-      volumes:
-        - .:/app
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "pip install -r requirements.txt && fastapi dev backend/fastapi/api/main_app.py --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
 
   frontend:
-    build:
-      context: .
-    command: streamlit run frontend/Start_Page.py
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "pip install -r requirements.txt && streamlit run frontend/Start_Page.py --server.address 0.0.0.0"
     ports:
       - "8501:8501"
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:
       - backend
-    volumes:
-      - .:/app  # Optional: mount your code for live reload in dev
 
 volumes:
   ollama_data:
